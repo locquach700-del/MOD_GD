@@ -1,0 +1,44 @@
+name: Build StylePaletteCopier
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  release:
+    types:
+      - published
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - win
+          - android32
+          - android64
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Build Geode mod
+        uses: geode-sdk/build-action@v1
+        with:
+          target: ${{ matrix.target }}
+
+      - name: Upload .geode package
+        uses: actions/upload-artifact@v4
+        with:
+          name: StylePaletteCopier-${{ matrix.target }}
+          path: "**/*.geode"
+          if-no-files-found: error
+          retention-days: 14
